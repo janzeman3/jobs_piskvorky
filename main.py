@@ -4,7 +4,7 @@ from time import sleep
 from modulePiskworker import Piskworker
 import random
 
-TIMESTEP = 10
+TIMESTEP = 1
 
 def wait_for_opponent():
     opponent = None
@@ -12,6 +12,11 @@ def wait_for_opponent():
         statusJSON = server.check(gameToken)
         sleep(TIMESTEP)
         opponent = statusJSON['playerCircleId']
+
+def wait_for_turn():
+    print("Waiting for our turn...")
+    while server.checkLast(gameToken, False)["actualPlayerId"]!=User.ID:
+        sleep(TIMESTEP)
 
 print("User ID:    " + User.ID)
 print("User Token: " + User.Token)
@@ -31,7 +36,7 @@ logic = Piskworker()
 
 error_code = 0
 while error_code != 226:
-    # wait for your turn
+    wait_for_turn()
 
     # update statistics
 
@@ -49,10 +54,10 @@ while error_code != 226:
         # and generate new turn
         x, y = logic.get_a_guess()
 
+    if error_code == 406:
+        print("Error: waiting for my turn does not work!!!")
+
     # print status - debug
-    print("\nCheck game")
-    server.check(gameToken)
-    print("\nCheck last")
     server.check(gameToken)
 
     sleep(TIMESTEP)

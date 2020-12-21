@@ -53,8 +53,9 @@ class PiskvorkyConnector:
 
         return response_json
 
-    def checkLast(self, game_token):
-        print("\nGet last turn")
+    def checkLast(self, game_token, display=True):
+        if display:
+            print("\nGet last turn")
         game =json.dumps({ "userToken": User.Token,
                            "gameToken": game_token
                             })
@@ -62,7 +63,8 @@ class PiskvorkyConnector:
         response = requests.post(self.checkLastURL, data=game)
         response_json = response.json()
 
-        print("  Response code: " + str(response.status_code))
-        print("  Response JSON: " + str(response_json))
+        if display:
+            print("  Response code: " + str(response.status_code))
+            print("  Response JSON: " + str(response_json))
 
         return response_json
