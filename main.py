@@ -7,11 +7,12 @@ import random
 TIMESTEP = 1
 
 def wait_for_opponent():
-    opponent = None
-    while not opponent:
+    opponentID = None
+    while not opponentID:
         statusJSON = server.check(gameToken)
         sleep(TIMESTEP)
-        opponent = statusJSON['playerCircleId']
+        opponentID = statusJSON['playerCircleId']
+    return opponentID
 
 def wait_for_turn():
     print("Waiting for our turn...")
@@ -25,20 +26,16 @@ server = PiskvorkyConnector()
 
 print("Starting game")
 gameToken = server.start_game()
-
-server.check(gameToken)
-
-wait_for_opponent()
-
-print("\nTry to play")
-
-logic = Piskworker()
+opponentID = wait_for_opponent()
+logic = Piskworker(User.ID, opponentID)
 
 error_code = 0
 while error_code != 226:
     wait_for_turn()
 
     # update statistics
+    gameStatus = server.check(gameToken)
+    logic.update(gameStatus)
 
     # generate turn
     x,y = logic.get_a_guess()
@@ -56,8 +53,5 @@ while error_code != 226:
 
     if error_code == 406:
         print("Error: waiting for my turn does not work!!!")
-
-    # print status - debug
-    server.check(gameToken)
 
     sleep(TIMESTEP)
