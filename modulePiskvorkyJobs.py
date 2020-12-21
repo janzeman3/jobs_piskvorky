@@ -14,13 +14,12 @@ class PiskvorkyConnector:
     def start_game(self):
         token = json.dumps({'userToken': User.Token})
 
-        print("Sending user token...")
+        print("\nStarting a game...")
         response = requests.post(self.startGameURL, data=token)
-
-        print("Response code: " + str(response.status_code))
-        print("Response JSON: ")
         response_json = response.json()
-        print(response_json)
+
+        print("   Response code: " + str(response.status_code))
+        print("   Response JSON: " + str(response_json))
 
         return response_json["gameToken"]
 
@@ -31,43 +30,39 @@ class PiskvorkyConnector:
                             "positionY": y
                             })
 
-        print("Play on " + str(x) + "," + str(y))
+        print("\nPlay on " + str(x) + "," + str(y))
         response = requests.post(self.playURL, data=turn)
-
-        print("Response code: " + str(response.status_code))
-
-        print("Response JSON: ")
         response_json = response.json()
-        print(response_json)
+
+        print("   Response code: " + str(response.status_code))
+        print("   Response JSON: " + str(response_json))
 
         return response_json
 
     def check(self, game_token):
+        print("\nGet game status")
         game =json.dumps({ "userToken": User.Token,
                            "gameToken": game_token
                             })
 
         response = requests.post(self.checkURL, data=game)
-
-        print("Response code: " + str(response.status_code))
-
-        print("Response JSON: ")
         response_json = response.json()
-        print(response_json)
+
+        print("  Response code: " + str(response.status_code))
+        print("  Response JSON: " + str(response_json))
 
         return response_json
 
     def checkLast(self, game_token):
+        print("\nGet last turn")
         game =json.dumps({ "userToken": User.Token,
                            "gameToken": game_token
                             })
 
         response = requests.post(self.checkLastURL, data=game)
-
-        print("Response code: " + str(response.status_code))
-
-        print("Response JSON: ")
         response_json = response.json()
-        print(response_json)
+
+        print("  Response code: " + str(response.status_code))
+        print("  Response JSON: " + str(response_json))
 
         return response_json
