@@ -46,7 +46,64 @@ class Piskworker:
         self.coordinates = gameStatus["coordinates"]
         self.update_gamerange()
 
+    def is_empty(self,x ,y):
+        result = True
+        for turn in self.coordinates:
+            if turn['x']==x and turn['y']==y:
+                result = False
+                break
+        return result
+
+    def whos_is(self,x ,y):
+        result = None
+        for turn in self.coordinates:
+            if turn['x']==x and turn['y']==y:
+                result = turn['playerId']
+                break
+        return result
+
+    def count_neighbours(self, x, y):
+        masks = [{'x':  0, 'y': +1},
+                 {'x':  0, 'y': -1},
+                 {'x': +1, 'y': -1},
+                 {'x': +1, 'y':  0},
+                 {'x': +1, 'y': +1},
+                 {'x': -1, 'y': -1},
+                 {'x': -1, 'y':  0},
+                 {'x': -1, 'y': +1}
+                 ]
+        score = 0
+        for direction in masks:
+            if not self.is_empty(x+direction['x'], y+direction['y']):
+                score+=1
+                directionID = self.whos_is(x+direction['x'], y+direction['y'])
+                if self.whos_is(x + 2*direction['x'], y + 2*direction['y'])==directionID:
+                    score += 20
+                    if self.whos_is(x + 3*direction['x'], y + 3*direction['y'])==directionID:
+                        score += 400
+                        if self.whos_is(x + 4*direction['x'], y + 4*direction['y'])==directionID:
+                            score += 8000
+
+        return score
+
+
     def get_a_guess(self):
-        x = random.randrange(self.min_x, self.max_x)
-        y = random.randrange(self.min_y, self.max_y)
-        return x, y
+        if len(self.coordinates) == 0:
+            result_x = 0
+            result_y = 0
+        else:
+            result_x = self.min_x
+            result_y = self.min_y
+        result_score = -1
+
+        for x in range(self.min_x, self.max_x+1):
+            for y in range(self.min_y, self.max_y + 1):
+                if self.is_empty(x,y):
+                    score = self.count_neighbours(x,y)
+
+                    if score>result_score:
+                        result_score = score
+                        result_x = x
+                        result_y = y
+
+        return result_x, result_y

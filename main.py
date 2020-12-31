@@ -2,7 +2,6 @@ from moduleUser import User
 from modulePiskvorkyJobs import PiskvorkyConnector
 from time import sleep
 from modulePiskworker import Piskworker
-import random
 
 TIMESTEP = 1
 
@@ -14,10 +13,12 @@ def wait_for_opponent():
         opponentID = statusJSON['playerCircleId']
     return opponentID
 
+
 def wait_for_turn():
     print("Waiting for our turn...")
-    while server.checkLast(gameToken, False)["actualPlayerId"]!=User.ID:
+    while server.checkLast(gameToken, False)["actualPlayerId"] != User.ID:
         sleep(TIMESTEP)
+
 
 print("User ID:    " + User.ID)
 print("User Token: " + User.Token)
@@ -38,7 +39,7 @@ while error_code != 226:
     logic.update(gameStatus)
 
     # generate turn
-    x,y = logic.get_a_guess()
+    x, y = logic.get_a_guess()
 
     # send the turn
     turn_JSON = server.play(gameToken, x, y)
