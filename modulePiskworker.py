@@ -2,6 +2,17 @@ import random
 
 DELTA = 1
 
+DIRECTION_SET = [{'x': 0, 'y': +1},
+                 {'x': 0, 'y': -1},
+                 {'x': +1, 'y': -1},
+                 {'x': +1, 'y': 0},
+                 {'x': +1, 'y': +1},
+                 {'x': -1, 'y': -1},
+                 {'x': -1, 'y': 0},
+                 {'x': -1, 'y': +1}
+                 ]
+
+
 class Piskworker:
     userID = None
     opponentID = None
@@ -13,11 +24,11 @@ class Piskworker:
     min_y = -20
     max_y = +20
 
-    def __init__(self, UserID, opponentID):
-        self.userID = UserID
-        self.opponentID = opponentID
+    def __init__(self, user_id, opponent_id):
+        self.userID = user_id
+        self.opponentID = opponent_id
 
-    def update_gamerange(self):
+    def update_game_range(self):
         min_x = 28
         max_x = -28
         min_y = 20
@@ -42,50 +53,40 @@ class Piskworker:
         print("Min Y" + str(min_y))
         print("Min Y" + str(max_y))
 
-    def update(self, gameStatus):
-        self.coordinates = gameStatus["coordinates"]
-        self.update_gamerange()
+    def update(self, game_status):
+        self.coordinates = game_status["coordinates"]
+        self.update_game_range()
 
-    def is_empty(self,x ,y):
+    def is_empty(self, x, y):
         result = True
         for turn in self.coordinates:
-            if turn['x']==x and turn['y']==y:
+            if turn['x'] == x and turn['y'] == y:
                 result = False
                 break
         return result
 
-    def whos_is(self,x ,y):
+    def whos_is(self, x, y):
         result = None
         for turn in self.coordinates:
-            if turn['x']==x and turn['y']==y:
+            if turn['x'] == x and turn['y'] == y:
                 result = turn['playerId']
                 break
         return result
 
-    def count_neighbours(self, x, y):
-        masks = [{'x':  0, 'y': +1},
-                 {'x':  0, 'y': -1},
-                 {'x': +1, 'y': -1},
-                 {'x': +1, 'y':  0},
-                 {'x': +1, 'y': +1},
-                 {'x': -1, 'y': -1},
-                 {'x': -1, 'y':  0},
-                 {'x': -1, 'y': +1}
-                 ]
+    def get_score(self, x, y):
         score = 0
-        for direction in masks:
+        for direction in DIRECTION_SET:
             if not self.is_empty(x+direction['x'], y+direction['y']):
-                score+=1
-                directionID = self.whos_is(x+direction['x'], y+direction['y'])
-                if self.whos_is(x + 2*direction['x'], y + 2*direction['y'])==directionID:
+                score += 1
+                direction_id = self.whos_is(x+direction['x'], y+direction['y'])
+                if self.whos_is(x + 2*direction['x'], y + 2*direction['y']) == direction_id:
                     score += 20
-                    if self.whos_is(x + 3*direction['x'], y + 3*direction['y'])==directionID:
+                    if self.whos_is(x + 3*direction['x'], y + 3*direction['y']) == direction_id:
                         score += 400
-                        if self.whos_is(x + 4*direction['x'], y + 4*direction['y'])==directionID:
+                        if self.whos_is(x + 4*direction['x'], y + 4*direction['y']) == direction_id:
                             score += 8000
 
         return score
-
 
     def get_a_guess(self):
         if len(self.coordinates) == 0:
@@ -98,10 +99,10 @@ class Piskworker:
 
         for x in range(self.min_x, self.max_x+1):
             for y in range(self.min_y, self.max_y + 1):
-                if self.is_empty(x,y):
-                    score = self.count_neighbours(x,y)
+                if self.is_empty(x, y):
+                    score = self.get_score(x, y)
 
-                    if score>result_score:
+                    if score > result_score or (score == result_score and random.random() > 0.5):
                         result_score = score
                         result_x = x
                         result_y = y
