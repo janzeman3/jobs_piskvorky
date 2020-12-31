@@ -65,7 +65,10 @@ class Piskworker:
                 break
         return result
 
-    def whos_is(self, x, y, direction={'x': 0, 'y': 0}, distance=0):
+    def whos_is(self, x, y, direction=None, distance=0):
+        if direction is None:
+            direction = {'x': 0, 'y': 0}
+
         result = None
         final_x = x + direction['x']*distance
         final_y = y + direction['y']*distance
