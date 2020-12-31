@@ -78,21 +78,52 @@ class Piskworker:
                 break
         return result
 
+    def is_potential_here(self, x, y, direction, player_id):
+        distance_positive = 1
+        potential = 1
+        while self.whos_is(x, y, direction, distance_positive) in [player_id, None] and distance_positive <= 5:
+            distance_positive += 1
+            potential += 1
+
+        distance_negative = 1
+        while self.whos_is(x, y, direction, -distance_negative) in [player_id, None] and distance_negative <= 5:
+            distance_negative += 1
+            potential += 1
+
+        if potential >= 5:
+            return True
+        else:
+            return False
+
+    def get_direction_score(self, x, y, direction, player_id):
+        direction_score = 1
+        if self.is_potential_here(x, y, direction, player_id):
+            distance = 1
+            while self.whos_is(x, y, direction, distance) == player_id and distance < 5:
+                direction_score *= 20
+                distance += 1
+
+            distance = 1
+            while self.whos_is(x, y, direction, -distance) == player_id and distance < 5:
+                direction_score *= 20
+                distance += 1
+
+        return direction_score
+
+    # Returns score of the position on the board.
     def get_score(self, x, y):
-        score = 0
+        offense_score = 0
+        defense_score = 0
         for direction in DIRECTION_SET:
-            if not self.is_empty(x+direction['x'], y+direction['y']):
-                score += 1
-                direction_id = self.whos_is(x, y, direction, 1)
-                if self.whos_is(x, y, direction, 2) == direction_id:
-                    score += 20
-                    if self.whos_is(x, y, direction, 3) == direction_id:
-                        score += 400
-                        if self.whos_is(x, y , direction, 4) == direction_id:
-                            score += 8000
+            offense_score += self.get_direction_score(x, y, direction, self.userID)
+            defense_score += self.get_direction_score(x, y, direction, self.opponentID)
+
+        score = offense_score + defense_score
+        print(str(x) + ", " + str(y) + ": score " + str(offense_score) + " + " + str(defense_score))
 
         return score
 
+    # Goes over all position on the board and get the score. Then chooses the best score and returns it.
     def get_a_guess(self):
         if len(self.coordinates) == 0:
             result_x = 0
