@@ -99,13 +99,15 @@ class Piskworker:
         direction_score = 1
         if self.is_potential_here(x, y, direction, player_id):
             distance = 1
-            while self.whos_is(x, y, direction, distance) == player_id and distance < 5:
-                direction_score *= 20
+            while self.whos_is(x, y, direction, distance) in [player_id, None] and distance < 5:
+                if self.whos_is(x, y, direction, distance) == player_id:
+                    direction_score *= 20
                 distance += 1
 
             distance = 1
-            while self.whos_is(x, y, direction, -distance) == player_id and distance < 5:
-                direction_score *= 20
+            while self.whos_is(x, y, direction, -distance) in [player_id, None] and distance < 5:
+                if self.whos_is(x, y, direction, distance) == player_id:
+                    direction_score *= 20
                 distance += 1
 
         return direction_score
