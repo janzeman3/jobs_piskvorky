@@ -65,10 +65,12 @@ class Piskworker:
                 break
         return result
 
-    def whos_is(self, x, y):
+    def whos_is(self, x, y, direction={'x': 0, 'y': 0}, distance=0):
         result = None
+        final_x = x + direction['x']*distance
+        final_y = y + direction['y']*distance
         for turn in self.coordinates:
-            if turn['x'] == x and turn['y'] == y:
+            if turn['x'] == final_x and turn['y'] == final_y:
                 result = turn['playerId']
                 break
         return result
@@ -78,12 +80,12 @@ class Piskworker:
         for direction in DIRECTION_SET:
             if not self.is_empty(x+direction['x'], y+direction['y']):
                 score += 1
-                direction_id = self.whos_is(x+direction['x'], y+direction['y'])
-                if self.whos_is(x + 2*direction['x'], y + 2*direction['y']) == direction_id:
+                direction_id = self.whos_is(x, y, direction, 1)
+                if self.whos_is(x, y, direction, 2) == direction_id:
                     score += 20
-                    if self.whos_is(x + 3*direction['x'], y + 3*direction['y']) == direction_id:
+                    if self.whos_is(x, y, direction, 3) == direction_id:
                         score += 400
-                        if self.whos_is(x + 4*direction['x'], y + 4*direction['y']) == direction_id:
+                        if self.whos_is(x, y , direction, 4) == direction_id:
                             score += 8000
 
         return score
