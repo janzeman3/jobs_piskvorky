@@ -12,6 +12,9 @@ DIRECTION_SET = [{'x': 0, 'y': +1},
                  {'x': -1, 'y': +1}
                  ]
 
+COEF_QUEUE = 100
+COEF_EMPTY_END = 2
+
 
 class Piskworker:
     userID = None
@@ -102,16 +105,28 @@ class Piskworker:
         direction_score = 1
         if self.is_potential_here(x, y, direction, player_id):
             distance = 1
+            space_count = 0
             while self.whos_is(x, y, direction, distance) in [player_id, None] and distance < 5:
                 if self.whos_is(x, y, direction, distance) == player_id:
-                    direction_score *= 20
+                    direction_score *= (COEF_QUEUE - space_count)
+                    space_count = 0
+                elif self.whos_is(x, y, direction, distance) is None:
+                    space_count += 1
                 distance += 1
+            if distance >= 5:
+                direction_score *= COEF_EMPTY_END
 
             distance = 1
             while self.whos_is(x, y, direction, -distance) in [player_id, None] and distance < 5:
-                if self.whos_is(x, y, direction, distance) == player_id:
-                    direction_score *= 20
+                if self.whos_is(x, y, direction, -distance) == player_id:
+                    direction_score *= (COEF_QUEUE - space_count)
+                    space_count = 0
+                elif self.whos_is(x, y, direction, -distance) is None:
+                    space_count += 1
                 distance += 1
+
+            if distance >= 5:
+                direction_score *= COEF_EMPTY_END
 
         return direction_score
 
