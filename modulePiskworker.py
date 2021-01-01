@@ -25,6 +25,9 @@ class Piskworker:
     max_y = +20
 
     def __init__(self, user_id, opponent_id):
+        if user_id == opponent_id:
+            print('Error!!!')
+            quit()
         self.userID = user_id
         self.opponentID = opponent_id
 

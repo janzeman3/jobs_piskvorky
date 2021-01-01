@@ -5,12 +5,15 @@ from modulePiskworker import Piskworker
 
 TIMESTEP = 1
 
-def wait_for_opponent():
+def wait_for_opponent(myID):
     opponentID = None
     while not opponentID:
         statusJSON = server.check(gameToken)
         sleep(TIMESTEP)
-        opponentID = statusJSON['playerCircleId']
+        if statusJSON['playerCircleId'] == myID:
+            opponentID = statusJSON['playerCrossId']
+        else:
+            opponentID = statusJSON['playerCircleId']
     return opponentID
 
 
@@ -27,7 +30,7 @@ server = PiskvorkyConnector()
 
 print("Starting game")
 gameToken = server.start_game()
-opponentID = wait_for_opponent()
+opponentID = wait_for_opponent(User.ID)
 logic = Piskworker(User.ID, opponentID)
 
 error_code = 0
