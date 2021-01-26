@@ -3,13 +3,14 @@ from modulePiskvorkyJobs import PiskvorkyConnector
 from time import sleep
 from modulePiskworker import Piskworker
 
-TIMESTEP = 1
+TIMESTEP_OPPONENT_WAIT = 1
+TIMESTEP_OPPONENT_PLAY = 1
 
 def wait_for_opponent(myID):
     opponentID = None
     while not opponentID:
         statusJSON = server.check(gameToken)
-        sleep(TIMESTEP)
+        sleep(TIMESTEP_OPPONENT_WAIT)
         if statusJSON['playerCircleId'] == myID:
             opponentID = statusJSON['playerCrossId']
         else:
@@ -20,7 +21,7 @@ def wait_for_opponent(myID):
 def wait_for_turn():
     print("Waiting for our turn...")
     while server.checkLast(gameToken, False)["actualPlayerId"] != User.ID:
-        sleep(TIMESTEP)
+        sleep(TIMESTEP_OPPONENT_PLAY)
 
 
 print("User ID:    " + User.ID)
@@ -58,4 +59,4 @@ while error_code != 226:
     if error_code == 406:
         print("Error: waiting for my turn does not work!!!")
 
-    sleep(TIMESTEP)
+    sleep(TIMESTEP_OPPONENT_PLAY)

@@ -12,7 +12,7 @@ DIRECTION_SET = [{'x': 0, 'y': +1},
                  {'x': -1, 'y': +1}
                  ]
 
-COEF_QUEUE = 100
+COEF_QUEUE = 15
 COEF_EMPTY_END = 2
 
 
@@ -101,37 +101,34 @@ class Piskworker:
         else:
             return False
 
+    def get_direction_score_one_way(self, x, y, direction, player_id, step):
+        direction_score = 1
+        distance = step
+        space_count = 0
+        while self.whos_is(x, y, direction, distance) in [player_id, None] and abs(distance) < 5:
+            if self.whos_is(x, y, direction, distance) == player_id:
+                direction_score *= (COEF_QUEUE - space_count)
+                space_count = 0
+            elif self.whos_is(x, y, direction, distance) is None:
+                space_count += 1
+            distance += step
+        if abs(distance) >= 5:
+            direction_score *= COEF_EMPTY_END
+        return direction_score
+
+    # returns score of the position according to direction
     def get_direction_score(self, x, y, direction, player_id):
         direction_score = 1
         if self.is_potential_here(x, y, direction, player_id):
-            distance = 1
-            space_count = 0
-            while self.whos_is(x, y, direction, distance) in [player_id, None] and distance < 5:
-                if self.whos_is(x, y, direction, distance) == player_id:
-                    direction_score *= (COEF_QUEUE - space_count)
-                    space_count = 0
-                elif self.whos_is(x, y, direction, distance) is None:
-                    space_count += 1
-                distance += 1
-            if distance >= 5:
-                direction_score *= COEF_EMPTY_END
+            direction_score *= self.get_direction_score_one_way(x, y, direction, player_id, +1)
+            direction_score *= self.get_direction_score_one_way(x, y, direction, player_id, -1)
 
-            distance = 1
-            while self.whos_is(x, y, direction, -distance) in [player_id, None] and distance < 5:
-                if self.whos_is(x, y, direction, -distance) == player_id:
-                    direction_score *= (COEF_QUEUE - space_count)
-                    space_count = 0
-                elif self.whos_is(x, y, direction, -distance) is None:
-                    space_count += 1
-                distance += 1
-
-            if distance >= 5:
-                direction_score *= COEF_EMPTY_END
-
+        print("..." + str(direction) + " " + str(direction_score) + " " + player_id)
         return direction_score
 
     # Returns score of the position on the board.
     def get_score(self, x, y):
+        print(str(x) + ", " + str(y) + "Starting...")
         offense_score = 0
         defense_score = 0
         for direction in DIRECTION_SET:
